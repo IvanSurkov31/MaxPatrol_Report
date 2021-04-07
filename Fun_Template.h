@@ -134,7 +134,7 @@ bool fIsCVEDuplicates(QStringList lstCVEDescription,QString strCVE)
     return flagCVEDuplicates;
 }
 
-//Шаблон(без описания) - IP без описание CVE с выбором: уровня и ОС хоста
+//Шаблон(без описания CVE) - IP без описание CVE с выбором: уровня и ОС хоста
 //1. Красиво оформить
 QStringList fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag )
 {
@@ -174,7 +174,7 @@ QStringList fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag )
             lstCVEMiddle.removeDuplicates();
             lstCVELow.removeDuplicates();
 
-            lstCVE<<lstCVECritical<<"\n"<<lstCVEHigh;
+            lstCVE<<lstCVECritical;
 
             //формируем строки по 5 записей CVE
             strCVECount=countRecordInString(lstCVE,6);
@@ -222,7 +222,7 @@ QStringList fTemplateReportCVENotDescription(QStringList lstNotTag )
     QStringList lstIP;
     QStringList lstCVE;
     QString strIP;
-    QString str1="Начало Отсчета";
+    QString str1="Начало Отчета";
     lstTemplateReport<<str1;
     QString strCVE;
     foreach (QString str, lstNotTag) {

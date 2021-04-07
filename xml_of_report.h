@@ -18,6 +18,7 @@ signals:
 
 public slots:
 
+
 };
 
 #endif // XML_OF_REPORT_H

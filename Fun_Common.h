@@ -1,10 +1,14 @@
 #ifndef FUN_COMMON_H
 #define FUN_COMMON_H
 
+#include "Fun_Template.h"
 #include <QtWidgets>
 
 namespace fun_common
 {
+
+
+
 
 QString checkExistenceString(QStringList lstCheck,int numberString)
 {
@@ -38,14 +42,16 @@ QStringList fDeleteTag(QString strfile)
     return lst;
 }
 
-QString fFileRead(QString strNameFile,QWidget *parent)
+QString fFileRead(QString strNameFile)
 {
+    QString strError;
     QString str;
     QFile file(strNameFile);
     if(!file.open(QIODevice::ReadOnly))
     {
-        QMessageBox::critical(parent, QString::fromUtf8("Ошибка"), QString::fromUtf8("Ошибка открытия файла"));
-        return str="Ошибка";
+        // QMessageBox::critical(parent, QString::fromUtf8("Ошибка"), QString::fromUtf8("Ошибка открытия файла"));
+        strError="error reading file";
+        return strError;
     }
     file.close();
 
@@ -54,16 +60,20 @@ QString fFileRead(QString strNameFile,QWidget *parent)
         str=stream.readAll();
         file.close();
         if (stream.status()!=QTextStream::Ok){
-            QMessageBox::critical(parent, QString::fromUtf8("Ошибка"), QString::fromUtf8("Ошибка записи с файла"));
-            return str="Ошибка";
+            // QMessageBox::critical(parent, QString::fromUtf8("Ошибка"), QString::fromUtf8("Ошибка записи с файла"));
+            strError="error reading file";
+            return strError;
         }
     }
     return str;
 }
 
-void fFileWrite(QString strNameFile,QString strData,QString strIsWriteOnly){
+QString fFileWrite(QString strNameFile,QString strData,QString strIsWriteOnly)
+{
+    QString strError;
+    QString str;
     QFile file(strNameFile);
-    file.remove();
+    //file.remove();
     if(strIsWriteOnly=="WriteOnly")
     {
         if(file.open(QIODevice::WriteOnly)){
@@ -71,7 +81,9 @@ void fFileWrite(QString strNameFile,QString strData,QString strIsWriteOnly){
             stream<<strData;
             file.close();
             if (stream.status()!=QTextStream::Ok){
-                qDebug()<<"Ошибка записи файла";
+                // QMessageBox::critical(parent, QString::fromUtf8("Ошибка"), QString::fromUtf8("Ошибка записи с файла"));
+                strError="error writing file";
+                return strError;
             }
         }
     }
@@ -82,7 +94,9 @@ void fFileWrite(QString strNameFile,QString strData,QString strIsWriteOnly){
             stream<<strData;
             file.close();
             if (stream.status()!=QTextStream::Ok){
-                qDebug()<<"Ошибка записи файла";
+                // QMessageBox::critical(parent, QString::fromUtf8("Ошибка"), QString::fromUtf8("Ошибка записи с файла"));
+                strError="error writing file";
+                return strError;
             }
         }
     }
@@ -93,7 +107,9 @@ void fFileWrite(QString strNameFile,QString strData,QString strIsWriteOnly){
             stream<<strData;
             file.close();
             if (stream.status()!=QTextStream::Ok){
-                qDebug()<<"Ошибка записи файла";
+                // QMessageBox::critical(parent, QString::fromUtf8("Ошибка"), QString::fromUtf8("Ошибка записи с файла"));
+                strError="error writing file";
+                return strError;
             }
         }
     }
@@ -154,16 +170,16 @@ QStringList fTemplateReportCVENotDescription(QStringList lstNotTag )
         if(regIP.indexIn(str)==0){
             //формируем строки по 7 записей CVE
             if(lstCVE.count()!=0){
-            foreach (str1, lstCVE) {
-                i++;
-                strCVE+=str1+"; ";
-                if(i==5){
-                    strCVE+="\n";
-                    i=0;
+                foreach (str1, lstCVE) {
+                    i++;
+                    strCVE+=str1+"; ";
+                    if(i==5){
+                        strCVE+="\n";
+                        i=0;
+                    }
                 }
             }
-            }
-           ////////////////////////////////////
+            ////////////////////////////////////
             lstTemplateReport<<"IP Адрес"<<"--"<<str<<"--"<<"\n";
             lstTemplateReport<<strCVE;
             lstCVE.clear();
@@ -171,17 +187,17 @@ QStringList fTemplateReportCVENotDescription(QStringList lstNotTag )
 
         }
 
-      //  код для формирования полного отчета
-//                else if(regVulnerabilityLevel.indexIn(str)>0){
-//                    lstTemplateReport<<str;
-//                    flagVulnerability=true;
-//                }
-//                else if(flagVulnerability==true){
-//                    lstTemplateReport<<str;
-//                    if(str=="-"){
-//                        flagVulnerability=false;
-//                    }
-//                }
+        //  код для формирования полного отчета
+        //                else if(regVulnerabilityLevel.indexIn(str)>0){
+        //                    lstTemplateReport<<str;
+        //                    flagVulnerability=true;
+        //                }
+        //                else if(flagVulnerability==true){
+        //                    lstTemplateReport<<str;
+        //                    if(str=="-"){
+        //                        flagVulnerability=false;
+        //                    }
+        //                }
 
         else if(regCVE.indexIn(str)==0){
             lstCVE<<str;
@@ -256,6 +272,40 @@ QString fDecodeString(QString strCode )
 
     return strDecode;
 }
+
+QString fReportGeneration(QString strFileXML)
+{
+    QString strError="false";
+    //считали файл xml
+    QString strFileReportXML=fFileRead(strFileXML);
+    if(strFileReportXML=="error reading file")
+        strError="error reading file";
+    //декодировали данные
+    strFileReportXML=fun_common::fDecodeString(strFileReportXML);
+    //удалили тэги
+    QStringList lstNotTag=fun_common::fDeleteTag(strFileReportXML);
+    QString strNotTag;
+    foreach (QString str, lstNotTag) {
+        strNotTag+=str+"\n";
+    }
+    //записали в файл textdok.txt данные без тэгов
+    if(fun_common::fFileWrite("textdok.txt",strNotTag,"WriteOnly")=="error writing file")
+        strError="error reading file";
+    //  QString strNotTagFromFile=functions::fFileRead("textdok.txt",this);
+    //формируем отчет по шаблону
+    QStringList lstTemplateReport=fun_tempate::fTemplateReportCVENotDescriptionWithSwitch(lstNotTag);
+    QString strTemplateReport;
+    foreach (QString str, lstTemplateReport) {
+        strTemplateReport+=str+"\n";
+    }
+    // записываем отчет по шаблону в файл ReportMaxPatrol.txt
+    if(fun_common::fFileWrite("ReportMaxPatrol.txt",strTemplateReport,"Append")=="error writing file")
+        strError="error writing file";
+
+    return strError;
+}
+
+
 }
 
 #endif // FUN_COMMON_H

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets xml printsupport
+QT       += core gui widgets xml printsupport concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
