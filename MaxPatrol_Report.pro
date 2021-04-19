@@ -14,10 +14,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         maxpatrol_report.cpp \
-    xml_of_report.cpp \
+    Report_Generation.cpp \
+    Fun_Common.cpp
 
 
 HEADERS  += maxpatrol_report.h \
-    xml_of_report.h \
     Fun_Common.h \
-    Fun_Template.h
+    Report_Generation.h

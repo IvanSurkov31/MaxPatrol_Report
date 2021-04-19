@@ -2,7 +2,7 @@
 2. Remove tags +
 3. Deal with the encoding +
 4. Generate a report using the template +
-5. Understanding the XML file ()+
+5. Understanding the XML file () +
  5.1 Split file (done with a third-party program. It is possible to do
  via command line) +-
 6. Forming a template
@@ -10,7 +10,8 @@
  6.2 Remove Duplicate Vulnerability List +
  6.3 Filter out criticality vulnerabilities ++ (arrange entries nicely)
  6.4 Filter hosts by OS +
-8. Each split file is edited according to the template and saved to one file
- 8.1 Read multithreading. Try to write files with streams -
+8. Each split file is edited according to the template and saved to one file +
+ 8.1 Program reads one file in a separate stream -
 9. Draw the interface (the interface will be a separate class)
 10. Record comments in english
+11. Make exceptions in functions

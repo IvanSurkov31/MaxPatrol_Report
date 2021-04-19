@@ -1,0 +1,60 @@
+#ifndef XML_OF_REPORT_H
+#define XML_OF_REPORT_H
+
+#include <QWidget>
+
+#include <QApplication>
+#include <QtXml>
+#include "QtWidgets"
+#include <QtPrintSupport>
+
+class ReportGenerationGUI : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit XML_of_Report(QWidget *parent = 0);
+    ~XML_of_Report();
+signals:
+
+public slots:
+
+};
+
+class ReportGeneration : public QObject {
+Q_OBJECT
+private:
+  
+public:
+    ReportGeneration(QObject* pobj = 0) {}
+    bool fIsCVEDuplicates(QStringList lstCVEDescription,QString strCVECount);
+    QString countRecordInString (QStringList lst,int iCountRecord);
+    QStringList fCVEDescription(QStringList lstNotTag);
+    QStringList fCVEDescription2(QStringList lstNotTag);
+    QStringList fCVEDescription3(QStringList lstNotTag);
+    QStringList fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag);
+    QStringList fTemplateReportCVENotDescription(QStringList lstNotTag);
+    QString fReportGeneration(QString strFileXML);
+   
+signals:
+
+
+public slots:
+  
+};
+
+class MyThread : public QThread {
+Q_OBJECT
+
+public:
+    void run()
+    {
+        XML_of_Report *clXMLofReport= new XML_of_Report;
+        QString strErrorXMLofReport=clXMLofReport->fReportGeneration("generated17804.xml.kk0");
+    }
+
+signals:
+    void progress(int);
+};
+
+
+#endif // XML_OF_REPORT_H

@@ -1,14 +1,23 @@
-#ifndef FUN_TEMPLATE_H
-#define FUN_TEMPLATE_H
-
+#include "Report_Generation.h"
+#include "Fun_Common.h"
 #include <QtWidgets>
+#include <QtConcurrent/QtConcurrent>
 
-/*namespace fun_tempate
+ReportGenerationInterface::ReportGenerationInterface(QWidget *parent) :
+    QWidget(parent)
 {
-bool fIsCVEDuplicates(QStringList lstCVEDescription,QString strCVECount);
+    //QMutex mutex;
+    //mutex.lock();
+    //fun_common::fReportGeneration("generated17804.xml.kk0");
+    //mutex.unlock();
+}
+
+ReportGenerationInterface::~ReportGenerationInterface(){
+}
+
 
 // Количество записей в строке
-QString countRecordInString (QStringList lst,int iCountRecord)
+QString ReportGeneration::countRecordInString (QStringList lst,int iCountRecord)
 {
     QString strText;
     QString str;
@@ -27,7 +36,7 @@ QString countRecordInString (QStringList lst,int iCountRecord)
 }
 
 //получение описания CVE способ 1 (удаляем дубликаты strCVECountDescription функцией lstCVEDescription.removeDuplicates() )
-QStringList fCVEDescription(QStringList lstNotTag )
+QStringList ReportGeneration::fCVEDescription(QStringList lstNotTag )
 {
     QRegExp regCVE("((CVE-[0-9]{4}))");
     QRegExp regIdentifier("(([0-9]{6}))");
@@ -62,7 +71,7 @@ QStringList fCVEDescription(QStringList lstNotTag )
 }
 
 //получение описания CVE(более простой чем первый, но дубликаты не удаляет) способ 2
-QStringList fCVEDescription2(QStringList lstNotTag )
+QStringList ReportGeneration::fCVEDescription2(QStringList lstNotTag )
 {
     QRegExp regCVE("((CVE-[0-9]{4}))");
     QRegExp regIdentifier("(([0-9]{6}))");
@@ -89,8 +98,18 @@ QStringList fCVEDescription2(QStringList lstNotTag )
     return  lstCVEDescription;
 }
 
+bool ReportGeneration::fIsCVEDuplicates(QStringList lstCVEDescription,QString strCVE)
+{
+    bool flagCVEDuplicates=false;
+    QList<QString>::iterator it =
+            qFind(lstCVEDescription.begin(),lstCVEDescription.end(),strCVE);
+    if(it!=lstCVEDescription.end())
+        flagCVEDuplicates=true;
+    return flagCVEDuplicates;
+}
+
 //получение описания CVE (без дубликатов) способ 3 ()
-QStringList fCVEDescription3(QStringList lstNotTag )
+QStringList ReportGeneration::fCVEDescription3(QStringList lstNotTag )
 {
     QRegExp regCVE("((CVE-[0-9]{4}))");
     QStringList lstCVEDescription;
@@ -124,19 +143,9 @@ QStringList fCVEDescription3(QStringList lstNotTag )
     return  lstCVEDescription;
 }
 
-bool fIsCVEDuplicates(QStringList lstCVEDescription,QString strCVE)
-{
-    bool flagCVEDuplicates=false;
-    QList<QString>::iterator it =
-            qFind(lstCVEDescription.begin(),lstCVEDescription.end(),strCVE);
-    if(it!=lstCVEDescription.end())
-        flagCVEDuplicates=true;
-    return flagCVEDuplicates;
-}
-
 //Шаблон(без описания CVE) - IP без описание CVE с выбором: уровня и ОС хоста
 //1. Красиво оформить
-QStringList fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag )
+QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag )
 {
     QRegExp regIP("(10\\.50\\.)");
     QRegExp regCVE("(CVE)");
@@ -214,7 +223,7 @@ QStringList fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag )
 }
 
 //Шаблон(без описания) - IP CVE(баг- последний IP не записывает)
-QStringList fTemplateReportCVENotDescription(QStringList lstNotTag )
+QStringList ReportGeneration::fTemplateReportCVENotDescription(QStringList lstNotTag )
 {
     QRegExp regIP("(10\\.50\\.)");
     QRegExp regCVE("(CVE)");
@@ -246,52 +255,40 @@ QStringList fTemplateReportCVENotDescription(QStringList lstNotTag )
     return lstTemplateReport;
 }
 
-//Шаблон(Полное описание) - IP CVE Описание
-/*QStringList fTemplateReportCVENotDescription(QStringList lstNotTag )
-        {
-            QRegExp regIP("(10\\.50\\.)");
-            QRegExp regCVE("(CVE)");
-            QRegExp regVulnerabilityLevel("(уровень)");
-            QStringList lstTemplateReport;
-            QStringList lstCVE;
-            QString str1="Начало Отсчета";
-            lstTemplateReport<<str1;
-            bool flagVulnerability=false;
-            bool flagIP=false;
-            QString strCVE;
-            int i=0; //счетчик подсчет количества CVE в строке
-            int x=0;
-            foreach (QString str, lstNotTag) {
-                if(regIP.indexIn(str)==0){
-                    //формируем строки по 7 записей CVE
-                 strCVE=countRecordInString(lstCVE,icountCVE);
-                   ////////////////////////////////////
-                    lstTemplateReport<<"IP Адрес"<<"--"<<str<<"--"<<"\n";
-                    lstTemplateReport<<strCVE;
-                    lstCVE.clear();
-                    strCVE.clear();
+QString ReportGeneration::fReportGenerationResult(QString strFileXML)
+{
+    QString strError="false";
+    //считали файл xml
+    QString strFileReportXML=fun_common::fFileRead(strFileXML);
+    if(strFileReportXML=="error file"){
+        strError="error file";
+        return strError;
+    }
+    //декодировали данные
+    strFileReportXML=fun_common::fDecodeString(strFileReportXML);
+    //удалили тэги
+    QStringList lstNotTag=fun_common::fDeleteTag(strFileReportXML);
+    QString strNotTag;
+    foreach (QString str, lstNotTag) {
+        strNotTag+=str+"\n";
+    }
+    //записали в файл textdok.txt данные без тэгов
+    if(fun_common::fFileWrite("textdok.txt",strNotTag,"WriteOnly")=="error file"){
+        strError="error file";
+        return strError;
+    }
+    //формируем отчет по шаблону
+    QStringList lstTemplateReport;
+    lstTemplateReport<<strFileXML;
+    lstTemplateReport<<fTemplateReportCVENotDescriptionWithSwitch(lstNotTag);
+    QString strTemplateReport;
+    foreach (QString str, lstTemplateReport) {
+        strTemplateReport+=str+"\n";
+    }
+    this->strReportGenerationResult=strTemplateReport;
+    return strError;
+}
 
-                }
-                else if(regCVE.indexIn(str)==0){
-                    lstCVE<<str;
-                }
-                //код для формирования полного отчета
-                //        else if(regVulnerabilityLevel.indexIn(str)>0){
-                //            lstTemplateReport<<str;
-                //            flagVulnerability=true;
-                //        }
-                //        else if(flagVulnerability==true){
-                //            lstTemplateReport<<str;
-                //            if(str=="-"){
-                //                flagVulnerability=false;
-                //            }
-                //        }
-            }
-            lstTemplateReport<<"Конец отсчета ";
-            qDebug()<<"Конец отчета500";
-            return lstTemplateReport;
-        }*/
+ReportGeneration::~ReportGeneration(){
+}
 
-/*}*/
-
-#endif // FUN_TEMPLATE_H
