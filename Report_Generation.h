@@ -11,11 +11,41 @@
 class ReportGenerationInterface : public QWidget
 {
     Q_OBJECT
+private:
+QGroupBox* gbCommon;
+QGroupBox* gbOS;
+QRadioButton* rbAllHost;
+QRadioButton* rbWind10Host;
+
+QGroupBox* gbLevelCVE;
+QCheckBox* cbCVECritical;
+QCheckBox* cbCVEHigh;
+QCheckBox* cbCVEMiddle;
+QCheckBox* cbCVELow;
+
+QGroupBox* gbDescriptionCVE;
+QRadioButton* rbDescriptionAllHost;
+QRadioButton* rbAndReport;
+QRadioButton* rbSeparateFile;
+QRadioButton* rbNotGeneration;
+
+QPushButton* pbReportGeneration;
+
+QVBoxLayout* VBLgbOS;
+QVBoxLayout* VBLgbLevelCVE;
+QVBoxLayout* VBLgbDescriptionCVE;
+QVBoxLayout* VBL1;
+QVBoxLayout* VBL2;
+QHBoxLayout* HBLgbCommon;
+QHBoxLayout* HBLResult;
+
 public:
     explicit ReportGenerationInterface(QWidget *parent = 0);
     ~ReportGenerationInterface();
 signals:
 public slots:
+
+void sl_clPB_ReportGeneration();
 };
 
 class ReportGeneration : public QObject {

@@ -12,6 +12,6 @@
  6.4 Filter hosts by OS +
 8. Each split file is edited according to the template and saved to one file +
  8.1 Program reads one file in a separate stream -
-9. Draw the interface (the interface will be a separate class)
+9. Draw the interface (the interface will be a separate class)+-
 10. Record comments in english
 11. Make exceptions in functions
