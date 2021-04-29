@@ -8,10 +8,10 @@
 6. Forming a template
  6.1 Write all vulnerabilities to the end of the file +
  6.2 Remove Duplicate Vulnerability List +
- 6.3 Filter out criticality vulnerabilities ++ (arrange entries nicely)
+ 6.3 Filter out criticality vulnerabilities ++ (arrange entries nicely)+
  6.4 Filter hosts by OS +
 8. Each split file is edited according to the template and saved to one file +
  8.1 Program reads one file in a separate stream -
-9. Draw the interface (the interface will be a separate class)+-
+9. Draw the interface (the interface will be a separate class)+
 10. Record comments in english
 11. Make exceptions in functions

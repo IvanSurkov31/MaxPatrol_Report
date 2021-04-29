@@ -6,83 +6,112 @@
 ReportGenerationInterface::ReportGenerationInterface(QWidget *parent) :
     QWidget(parent)
 {
-    QGroupBox* gbCommon=new QGroupBox("&Формирование отчёта");
+    gbCommon=new QGroupBox("&Формирование отчёта");
 
-    QGroupBox* gbOS=new QGroupBox("&ОС");
-    QRadioButton* rbAllHost=new  QRadioButton("&Все хосты");
-    QRadioButton* rbWind10Host=new  QRadioButton("&Только Windows 10");
+    gbOS=new QGroupBox("&ОС");
+    rbAllHost=new  QRadioButton("&Все хосты");
+    rbWind10Host=new  QRadioButton("&Только Windows 10");
     rbWind10Host->setChecked(true);
 
-    QGroupBox* gbLevelCVE=new QGroupBox("&Уровень критичности");
-    QCheckBox* cbCVECritical=new  QCheckBox("&Критичный");
+    gbLevelCVE=new QGroupBox("&Уровень критичности");
+    cbCVECritical=new  QCheckBox("&Критичный");
     cbCVECritical->setChecked(true);
-    QCheckBox* cbCVEHigh=new  QCheckBox("&Высокий");
-    QCheckBox* cbCVEMiddle=new  QCheckBox("&Средний");
-    QCheckBox* cbCVELow=new  QCheckBox("&Низкий");
+    cbCVEHigh=new  QCheckBox("&Высокий");
+    cbCVEMiddle=new  QCheckBox("&Средний");
+    cbCVELow=new  QCheckBox("&Низкий");
 
-    QGroupBox* gbDescriptionCVE=new QGroupBox("&Описание CVE");
-    QRadioButton* rbDescriptionAllHost=new QRadioButton("&Описание каждого хоста");
-    QRadioButton* rbAndReport=new QRadioButton("&В конце отчета");
-    QRadioButton* rbSeparateFile=new QRadioButton("&Отдельным файлом");
-    QRadioButton* rbNotGeneration=new QRadioButton("&Не формировать");
+    gbDescriptionCVE=new QGroupBox("&Описание CVE");
+    rbDescriptionAllHost=new QRadioButton("&Описание каждого хоста");
+    rbAndReport=new QRadioButton("&В конце отчета");
+    rbSeparateFile=new QRadioButton("&Отдельным файлом");
+    rbNotGeneration=new QRadioButton("&Не формировать");
     rbNotGeneration->setChecked(true);
 
-    QPushButton* pbReportGeneration=new QPushButton("&Сформировать отчёт");
+    pbReportGeneration=new QPushButton("&Сформировать отчёт");
 
-    QVBoxLayout* VBLgbOS=new QVBoxLayout ;
+    lblDirectory=new QLabel("Директория ");
+    pbDirectory=new  QPushButton(QPixmap(":/fileopen.png"), "");
+    leDirectory= new QLineEdit(QDir::current().absolutePath()+"/FileXML");
+
+    VBLgbOS=new QVBoxLayout ;
     VBLgbOS->addWidget(rbAllHost);
     VBLgbOS->addWidget(rbWind10Host);
     VBLgbOS->addStretch();
 
-    QVBoxLayout* VBLgbLevelCVE=new QVBoxLayout;
+    VBLgbLevelCVE=new QVBoxLayout;
     VBLgbLevelCVE->addWidget(cbCVECritical);
     VBLgbLevelCVE->addWidget(cbCVEHigh);
     VBLgbLevelCVE->addWidget(cbCVEMiddle);
     VBLgbLevelCVE->addWidget(cbCVELow);
     VBLgbLevelCVE->addStretch();
 
-    QVBoxLayout* VBLgbDescriptionCVE=new QVBoxLayout;
+    VBLgbDescriptionCVE=new QVBoxLayout;
     VBLgbDescriptionCVE->addWidget(rbDescriptionAllHost);
     VBLgbDescriptionCVE->addWidget(rbAndReport);
     VBLgbDescriptionCVE->addWidget(rbSeparateFile);
     VBLgbDescriptionCVE->addWidget(rbNotGeneration);
     VBLgbDescriptionCVE->addStretch();
 
+    HBLDirectory=new QHBoxLayout;
+    HBLDirectory->addWidget(lblDirectory);
+    HBLDirectory->addWidget(leDirectory);
+    HBLDirectory->addWidget(pbDirectory);
+
     gbOS->setLayout(VBLgbOS);
     gbLevelCVE->setLayout(VBLgbLevelCVE);
     gbDescriptionCVE->setLayout(VBLgbDescriptionCVE);
 
-    QVBoxLayout* VBL1=new  QVBoxLayout;
+    VBL1=new  QVBoxLayout;
     VBL1->addWidget(gbOS);
     VBL1->addWidget(gbLevelCVE);
 
-    QVBoxLayout* VBL2=new QVBoxLayout;
+    VBL2=new QVBoxLayout;
     VBL2->addWidget(gbDescriptionCVE);
+    VBL2->addLayout(HBLDirectory);
     VBL2->addWidget(pbReportGeneration);
 
-    QHBoxLayout* HBLgbCommon=new QHBoxLayout;
+    HBLgbCommon=new QHBoxLayout;
     HBLgbCommon->addLayout(VBL1);
     HBLgbCommon->addLayout(VBL2);
 
     gbCommon->setLayout(HBLgbCommon);
 
-    QHBoxLayout* HBLResult=new QHBoxLayout;
+    HBLResult=new QHBoxLayout;
     HBLResult->addWidget(gbCommon);
 
     this->setLayout(HBLResult);
 
     connect(pbReportGeneration, SIGNAL(clicked()),
-            this,SLOT(sl_clPB_ReportGeneration()));
+            this,SLOT(slot_clicked_pbReportGeneration()));
+
+    connect(pbDirectory, SIGNAL(clicked()),
+            this,SLOT(slot_clicked_pbDirectory()));
 }
 
-void ReportGenerationInterface::sl_clPB_ReportGeneration()
+void ReportGenerationInterface::slot_clicked_pbDirectory()
 {
-    qDebug()<<"PPP";
+    QString str = QFileDialog::getExistingDirectory(0,
+                                                    "Выбор директории",
+                                                    leDirectory->text()
+                                                    );
+    if (!str.isEmpty()) {
+        leDirectory->setText(str);
+    }
+    const QDir& dir=str;
+    QStringList lst;lst<<"*";
+    this->lstFilesXML=dir.entryList(lst, QDir::Files);
+}
+void ReportGenerationInterface::slot_clicked_pbReportGeneration()
+{
     QString strReportGenerationResult;
-    QStringList lstFilesXML;
-    lstFilesXML<<"generated17804.xml.kk0"<<"generated17804.xml.kk1"<<"generated17804.xml.kk2"
-              <<"generated17804.xml.kk3" <<"generated17804.xml.kk4" <<"generated17804.xml.kk5"
-             <<"generated17804.xml.kk6" <<"generated17804.xml.kk7" <<"generated17804.xml.kk8";
+
+    const QDir& dir=this->leDirectory->text();
+    QStringList lst;lst<<"*";
+    this->lstFilesXML=dir.entryList(lst, QDir::Files);
+//    QStringList lstFilesXML;
+//    lstFilesXML<<"generated17804.xml.kk0"<<"generated17804.xml.kk1"<<"generated17804.xml.kk2"
+//              <<"generated17804.xml.kk3" <<"generated17804.xml.kk4" <<"generated17804.xml.kk5"
+//             <<"generated17804.xml.kk6" <<"generated17804.xml.kk7" <<"generated17804.xml.kk8";
 
     QList<ReportGeneration*> lstclReportGeneration;
     QString strErrorFile;

@@ -6,9 +6,9 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-  //  MaxPatrol_Report w;
+    MaxPatrol_Report w;
     ReportGenerationInterface r;
-    r.show();
-   // w.show();
+   // r.show();
+    w.show();
     return a.exec();
 }

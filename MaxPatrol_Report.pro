@@ -21,3 +21,6 @@ SOURCES += main.cpp\
 HEADERS  += maxpatrol_report.h \
     Fun_Common.h \
     Report_Generation.h
+
+RESOURCES += \
+    resource.qrc

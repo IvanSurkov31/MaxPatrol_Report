@@ -7,11 +7,15 @@
 #include <QtXml>
 #include "QtWidgets"
 #include <QtPrintSupport>
+#include <QDir>
 
 class ReportGenerationInterface : public QWidget
 {
     Q_OBJECT
 private:
+
+QStringList lstFilesXML;
+
 QGroupBox* gbCommon;
 QGroupBox* gbOS;
 QRadioButton* rbAllHost;
@@ -31,6 +35,11 @@ QRadioButton* rbNotGeneration;
 
 QPushButton* pbReportGeneration;
 
+QLabel* lblDirectory;
+QPushButton* pbDirectory;
+QLineEdit* leDirectory;
+
+QHBoxLayout* HBLDirectory;
 QVBoxLayout* VBLgbOS;
 QVBoxLayout* VBLgbLevelCVE;
 QVBoxLayout* VBLgbDescriptionCVE;
@@ -45,7 +54,8 @@ public:
 signals:
 public slots:
 
-void sl_clPB_ReportGeneration();
+void slot_clicked_pbReportGeneration();
+void slot_clicked_pbDirectory();
 };
 
 class ReportGeneration : public QObject {
