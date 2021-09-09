@@ -15,3 +15,5 @@
 9. Draw the interface (the interface will be a separate class)+
 10. Record comments in english
 11. Make exceptions in functions
+12. Обновлять файл при новом формировании отчёта+
+13. Передать инф о настройке

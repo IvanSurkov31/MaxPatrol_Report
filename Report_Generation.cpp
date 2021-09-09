@@ -105,24 +105,41 @@ void ReportGenerationInterface::slot_clicked_pbReportGeneration()
 {
     QString strReportGenerationResult;
 
+    setting Setting;
+    Setting.flagOSWind10Host=this->rbWind10Host->isChecked();
+    Setting.flagCVECritical=this->cbCVECritical->isChecked();
+    Setting.flagCVEHigh=this->cbCVEHigh->isChecked();
+    Setting.flagCVELow=this->cbCVELow->isChecked();
+    Setting.flagCVEMiddle=this->cbCVEMiddle->isChecked();
+
+    if(this->rbNotGeneration->isChecked()==true)
+    Setting.strReport="NotGeneration";
+    else if(this->rbDescriptionAllHost->isChecked()==true)
+        Setting.strReport="DescriptionAllHost";
+    else if(this->rbSeparateFile->isChecked()==true)
+        Setting.strReport="SeparateFile";
+    else
+        Setting.strReport="AndReport";
+
     const QDir& dir=this->leDirectory->text();
     QStringList lst;lst<<"*";
     this->lstFilesXML=dir.entryList(lst, QDir::Files);
-//    QStringList lstFilesXML;
-//    lstFilesXML<<"generated17804.xml.kk0"<<"generated17804.xml.kk1"<<"generated17804.xml.kk2"
-//              <<"generated17804.xml.kk3" <<"generated17804.xml.kk4" <<"generated17804.xml.kk5"
-//             <<"generated17804.xml.kk6" <<"generated17804.xml.kk7" <<"generated17804.xml.kk8";
 
     QList<ReportGeneration*> lstclReportGeneration;
     QString strErrorFile;
 
+//    selectOSCVEReport selectButton;
+
+//    selectButton.strOS=this->rbAllHost->isChecked();
+
     foreach(QString strFilesXML,lstFilesXML)
     {
+        strFilesXML=leDirectory->text()+"/"+strFilesXML;
         ReportGeneration *clReportGeneration= new ReportGeneration;
         MyThread* thread=new MyThread;
         thread->start();
         clReportGeneration->moveToThread(thread);
-        strErrorFile=clReportGeneration->fReportGenerationResult(strFilesXML);
+        strErrorFile=clReportGeneration->fReportGenerationResult(strFilesXML,Setting);
         lstclReportGeneration<<clReportGeneration;
     }
     foreach(ReportGeneration* clReportGeneration,lstclReportGeneration){
@@ -130,8 +147,11 @@ void ReportGenerationInterface::slot_clicked_pbReportGeneration()
     }
 
     QString strError;
-    if(fun_common::fFileWrite("ReportMaxPatrol.txt", strReportGenerationResult,"Append")=="error writing file")
-        strError="error writing file";
+    if(fun_common::fFileWrite("ReportMaxPatrol.txt", strReportGenerationResult,"WriteOnly")=="error writing file")
+    {
+    strError="error writing file";
+    qDebug()<<strError;
+    }
 }
 
 ReportGenerationInterface::~ReportGenerationInterface(){
@@ -146,7 +166,7 @@ QString ReportGeneration::countRecordInString (QStringList lst,int iCountRecord)
     if(lst.count()!=0){
         foreach (str, lst) {
             i++;
-            strText+=str+"; ";
+            strText+=str+" ";
             if(i==iCountRecord){
                 strText+="\n";
                 i=0;
@@ -266,32 +286,33 @@ QStringList ReportGeneration::fCVEDescription3(QStringList lstNotTag )
 
 //Шаблон(без описания CVE) - IP без описание CVE с выбором: уровня и ОС хоста
 //1. Красиво оформить
-QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag )
+QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag,setting Setting)
 {
     QRegExp regIP("(10\\.50\\.)");
     QRegExp regCVE("(CVE)");
     QString strOS="Windows 10";
     QRegExp regOS("("+strOS+")");
-    QRegExp regCVECritical("(Критический)");
     QRegExp regCVEHigh("(Высокий)");
     QRegExp regCVEMiddle("(Средний)");
+    QRegExp regCVECritical("(Критический)");
     QRegExp regCVELow("(Низкий)");
 
-    QStringList lstCVECritical;lstCVECritical<<"Критический уровень"<<"\n";
-    QStringList lstCVEHigh;lstCVEHigh<<"Высокий уровень"<<"\n";
-    QStringList lstCVEMiddle;lstCVEMiddle<<"\n"<<"Средний уровень"<<"\n";
-    QStringList lstCVELow;lstCVELow<<"\n"<<"Низкий уровень"<<"\n";
+    QStringList lstCVECritical;lstCVECritical<<"Критический уровень:"<<"\n";
+    QStringList lstCVEHigh;lstCVEHigh<<"Высокий уровень:"<<"\n";
+    QStringList lstCVEMiddle;lstCVEMiddle<<"\n"<<"Средний уровень:"<<"\n";
+    QStringList lstCVELow;lstCVELow<<"\n"<<"Низкий уровень:"<<"\n";
 
     QStringList lstTemplateReport;
     QStringList lstIP;
     QStringList lstCVE;
 
-    QString str1="Начало Отсчета";
-    lstTemplateReport<<str1;
+//    QString str1="Начало Отсчета";
+//    lstTemplateReport<<str1;
 
     QString strCVE;//
     QString strCVECount;//строка содержет 6 CVE
     QString strIP;// Содержет IP
+    QString strCountCVE;
 
     bool flagOS10=false;
     int iIp=0;//подсчет IP
@@ -303,11 +324,11 @@ QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QString
             lstCVEHigh.removeDuplicates();
             lstCVEMiddle.removeDuplicates();
             lstCVELow.removeDuplicates();
-
-            lstCVE<<lstCVECritical;
+            strCountCVE=QString::number(lstCVECritical.count()-2);
+            lstCVE<<"Количество уязвимостей: "<<strCountCVE<<"\n"<<lstCVECritical;
 
             //формируем строки по 5 записей CVE
-            strCVECount=countRecordInString(lstCVE,6);
+            strCVECount=countRecordInString(lstCVE,3);
             lstIP<<"IP Адрес"<<strIP;//текуйщий Ip
             lstIP<<strCVECount;
             strIP=str;//следующий Ip
@@ -338,7 +359,7 @@ QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QString
             strCVECount.clear();
         }
     }
-    lstTemplateReport<<"Конец отсчета ";
+//    lstTemplateReport<<"Конец отсчета ";
     qDebug()<<"Конец отчета0";
     return lstTemplateReport;
 }
@@ -376,13 +397,14 @@ QStringList ReportGeneration::fTemplateReportCVENotDescription(QStringList lstNo
     return lstTemplateReport;
 }
 
-QString ReportGeneration::fReportGenerationResult(QString strFileXML)
+QString ReportGeneration::fReportGenerationResult(QString strFileXML,setting Setting)
 {
     QString strError="false";
     //считали файл xml
     QString strFileReportXML=fun_common::fFileRead(strFileXML);
     if(strFileReportXML=="error file"){
-        strError="error file";
+        strError="error file III";
+        qDebug()<<strError;
         return strError;
     }
     //декодировали данные
@@ -396,12 +418,13 @@ QString ReportGeneration::fReportGenerationResult(QString strFileXML)
     //записали в файл textdok.txt данные без тэгов
     if(fun_common::fFileWrite("textdok.txt",strNotTag,"WriteOnly")=="error file"){
         strError="error file";
+        qDebug()<<strError;
         return strError;
     }
     //формируем отчет по шаблону
     QStringList lstTemplateReport;
-    lstTemplateReport<<strFileXML;
-    lstTemplateReport<<fTemplateReportCVENotDescriptionWithSwitch(lstNotTag);
+    //lstTemplateReport<<strFileXML;
+    lstTemplateReport<<fTemplateReportCVENotDescriptionWithSwitch(lstNotTag,Setting);
     QString strTemplateReport;
     foreach (QString str, lstTemplateReport) {
         strTemplateReport+=str+"\n";

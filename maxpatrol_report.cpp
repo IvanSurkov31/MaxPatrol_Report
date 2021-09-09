@@ -19,13 +19,14 @@ MaxPatrol_Report::MaxPatrol_Report(QWidget *parent)
     this->setFixedSize(600,500);
     this->setFont(QFont("Times",11));
 
+    this->setWindowTitle("MaxPatrol Report");
+
     connect(About,SIGNAL(triggered(bool)),this,SLOT(slot_clicked_menuAbout(bool)));
 }
 
 void MaxPatrol_Report::slot_clicked_menuAbout(bool flag)
 {
-    qDebug()<<"ee";
-    QLabel* lbl_help=new QLabel("    АО ОЭМК им А.А. Угарова» \r\n    Отдел информационной безопасности\r\n    2021.");
+    QLabel* lbl_help=new QLabel("       «АО ОЭМК им А.А. Угарова»\r\n       Отдел информационной безопасности\r\n       2021");
     lbl_help->setFixedSize(415,200);
     lbl_help->setFont(QFont("Times",12));
     lbl_help->show();

@@ -58,6 +58,15 @@ void slot_clicked_pbReportGeneration();
 void slot_clicked_pbDirectory();
 };
 
+struct setting{
+    bool flagOSWind10Host; //
+    QString strReport; //
+    bool flagCVECritical;
+    bool flagCVEHigh;
+    bool flagCVEMiddle;
+    bool flagCVELow;
+};
+
 class ReportGeneration : public QObject {
 Q_OBJECT
 private:
@@ -69,10 +78,11 @@ public:
     QStringList fCVEDescription(QStringList lstNotTag);
     QStringList fCVEDescription2(QStringList lstNotTag);
     QStringList fCVEDescription3(QStringList lstNotTag);
-    QStringList fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag);
+    QStringList fTemplateReportCVENotDescriptionWithSwitch(QStringList lstNotTag,setting Setting);
     QStringList fTemplateReportCVENotDescription(QStringList lstNotTag);
-    QString fReportGenerationResult(QString strFileXML);
+    QString fReportGenerationResult(QString strFileXML,setting Setting);
     QString strReportGenerationResult;
+
 signals:
 public slots:
 };
