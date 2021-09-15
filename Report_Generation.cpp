@@ -113,7 +113,7 @@ void ReportGenerationInterface::slot_clicked_pbReportGeneration()
     Setting.flagCVEMiddle=this->cbCVEMiddle->isChecked();
 
     if(this->rbNotGeneration->isChecked()==true)
-    Setting.strReport="NotGeneration";
+        Setting.strReport="NotGeneration";
     else if(this->rbDescriptionAllHost->isChecked()==true)
         Setting.strReport="DescriptionAllHost";
     else if(this->rbSeparateFile->isChecked()==true)
@@ -128,9 +128,9 @@ void ReportGenerationInterface::slot_clicked_pbReportGeneration()
     QList<ReportGeneration*> lstclReportGeneration;
     QString strErrorFile;
 
-//    selectOSCVEReport selectButton;
+    //    selectOSCVEReport selectButton;
 
-//    selectButton.strOS=this->rbAllHost->isChecked();
+    //    selectButton.strOS=this->rbAllHost->isChecked();
 
     foreach(QString strFilesXML,lstFilesXML)
     {
@@ -149,8 +149,8 @@ void ReportGenerationInterface::slot_clicked_pbReportGeneration()
     QString strError;
     if(fun_common::fFileWrite("ReportMaxPatrol.txt", strReportGenerationResult,"WriteOnly")=="error writing file")
     {
-    strError="error writing file";
-    qDebug()<<strError;
+        strError="error writing file";
+        qDebug()<<strError;
     }
 }
 
@@ -297,20 +297,17 @@ QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QString
     QRegExp regCVECritical("(Критический)");
     QRegExp regCVELow("(Низкий)");
 
-    QStringList lstCVECritical;lstCVECritical<<"Критический уровень:"<<"\n";
-    QStringList lstCVEHigh;lstCVEHigh<<"Высокий уровень:"<<"\n";
-    QStringList lstCVEMiddle;lstCVEMiddle<<"\n"<<"Средний уровень:"<<"\n";
-    QStringList lstCVELow;lstCVELow<<"\n"<<"Низкий уровень:"<<"\n";
+    QStringList lstCVECritical;;
+    QStringList lstCVEHigh;;
+    QStringList lstCVEMiddle;;
+    QStringList lstCVELow;;
 
     QStringList lstTemplateReport;
     QStringList lstIP;
     QStringList lstCVE;
 
-//    QString str1="Начало Отсчета";
-//    lstTemplateReport<<str1;
-
     QString strCVE;//
-    QString strCVECount;//строка содержет 6 CVE
+    QString strRecordCVE;//строка содержет 3 CVE
     QString strIP;// Содержет IP
     QString strCountCVE;
 
@@ -324,13 +321,26 @@ QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QString
             lstCVEHigh.removeDuplicates();
             lstCVEMiddle.removeDuplicates();
             lstCVELow.removeDuplicates();
-            strCountCVE=QString::number(lstCVECritical.count()-2);
-            lstCVE<<"Количество уязвимостей: "<<strCountCVE<<"\n"<<lstCVECritical;
 
-            //формируем строки по 5 записей CVE
-            strCVECount=countRecordInString(lstCVE,3);
+            strCountCVE=QString::number(lstCVECritical.count()-2);
+            lstCVE<<"\n"<<"Критичный уровень:"<<"Количество уязвимостей: "<<strCountCVE<<"\n"<<countRecordInString(lstCVECritical,3);
+
+            if(Setting.flagCVEHigh==true){
+                strCountCVE=QString::number(lstCVEHigh.count()-2);
+                lstCVE<<"\n"<<"Высокий уровень:"<<"Количество уязвимостей: "<<strCountCVE<<"\n"<<countRecordInString(lstCVEHigh,3);
+            }
+            if(Setting.flagCVEMiddle==true){
+                strCountCVE=QString::number(lstCVEMiddle.count()-2);
+                lstCVE<<"\n"<<"Средний уровень:"<<"Количество уязвимостей: "<<strCountCVE<<"\n"<<countRecordInString(lstCVEMiddle,3);
+            }
+            if(Setting.flagCVELow==true){
+                strCountCVE=QString::number(lstCVELow.count()-2);
+                lstCVE<<"\n"<<"Низкий уровень:"<<"Количество уязвимостей: "<<strCountCVE<<"\n"<<countRecordInString(lstCVELow,3);
+            }
+            //формируем строки по 3 записей CVE
+            //strRecordCVE=countRecordInString(lstCVE,3);
             lstIP<<"IP Адрес"<<strIP;//текуйщий Ip
-            lstIP<<strCVECount;
+            lstIP<<lstCVE;
             strIP=str;//следующий Ip
         }
         else if(regCVE.indexIn(str)==0){
@@ -356,10 +366,9 @@ QStringList ReportGeneration::fTemplateReportCVENotDescriptionWithSwitch(QString
             flagOS10=false;
             lstCVE.clear();
             lstIP.clear();
-            strCVECount.clear();
+            strRecordCVE.clear();
         }
     }
-//    lstTemplateReport<<"Конец отсчета ";
     qDebug()<<"Конец отчета0";
     return lstTemplateReport;
 }
